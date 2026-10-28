@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="960" viewBox="0 0 1400 960">
+  <defs><marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto"><path d="M0 0 L10 5 L0 10 Z" fill="red"/></marker></defs>
+  <rect width="1400" height="960" fill="white"/>
+  <g fill="none" stroke="red" stroke-width="2.5" marker-end="url(#arrow)">
+    <path d="M580 212 H340"/>
+    <path d="M340 268 H580"/>
+    <path d="M820 212 H1060"/>
+    <path d="M1060 268 H820"/>
+    <path d="M220 180 V80 H1180 V180"/>
+    <path d="M665 300 V590"/>
+    <path d="M735 590 V300"/>
+    <path d="M820 650 C1060 650 1180 480 1180 300"/>
+    <path d="M650 710 C590 900 810 900 750 710"/>
+  </g>
+  <g fill="white" stroke="black" stroke-width="2">
+    <ellipse cx="220" cy="240" rx="120" ry="60"/>
+    <ellipse cx="700" cy="240" rx="120" ry="60"/>
+    <ellipse cx="1180" cy="240" rx="120" ry="60"/>
+    <ellipse cx="700" cy="650" rx="120" ry="60"/>
+  </g>
+  <g font-family="Arial,sans-serif" text-anchor="middle">
+    <g font-size="34" fill="black"><text x="220" y="252">Sleep</text><text x="700" y="252">Idle</text><text x="1180" y="252">Run</text><text x="700" y="662">AutoRun</text></g>
+    <g font-size="22" fill="red">
+      <text x="460" y="192">TIME_OUT (5s)</text>
+      <text x="460" y="307">SPACE DOWN</text>
+      <text x="940" y="192">LEFT / RIGHT DOWN</text>
+      <text x="940" y="307">ALL ARROWS UP</text>
+      <text x="700" y="58">LEFT / RIGHT DOWN</text>
+      <text x="640" y="448" text-anchor="end">A DOWN</text>
+      <text x="760" y="448" text-anchor="start">TIME_OUT (5s)</text>
+      <text x="1140" y="608">LEFT / RIGHT DOWN</text>
+      <text x="700" y="905">SCREEN EDGE / REVERSE</text>
+    </g>
+  </g>
+</svg>
