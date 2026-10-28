@@ -1,10 +1,13 @@
 from pathlib import Path
 
-from pico2d import (SDL_KEYDOWN, SDL_KEYUP, SDLK_LEFT, SDLK_RIGHT,
+from pico2d import (SDL_KEYDOWN, SDL_KEYUP, SDLK_LEFT, SDLK_RIGHT, SDLK_a,
                     get_canvas_width, load_image)
 
 RUN_SPEED = 200.0
 NORMAL_SIZE = 100
+AUTO_SPEED = RUN_SPEED * 2
+AUTO_SIZE = NORMAL_SIZE * 2
+AUTO_DURATION = 5.0
 ANIMATION_FPS = 10.0
 
 
@@ -30,6 +33,37 @@ class Run:
                              boy.x + boy.face_dir * RUN_SPEED * dt))
 
 
+class AutoRun:
+    @staticmethod
+    def enter(boy):
+        boy.auto_elapsed = 0.0
+        boy.run_keys.clear()
+        half = AUTO_SIZE / 2
+        boy.x = max(half, min(get_canvas_width() - half, boy.x))
+
+    @staticmethod
+    def update(boy, dt):
+        # Move only for the remaining AutoRun time, even after a slow frame.
+        move_dt = min(dt, AUTO_DURATION - boy.auto_elapsed)
+        boy.auto_elapsed += dt
+        boy.x += boy.face_dir * AUTO_SPEED * move_dt
+        left, right = AUTO_SIZE / 2, get_canvas_width() - AUTO_SIZE / 2
+        # Reflect overshoot so movement remains consistent across frame rates.
+        while boy.x < left or boy.x > right:
+            if boy.x > right:
+                boy.x = 2 * right - boy.x
+                boy.face_dir = -1
+            elif boy.x < left:
+                boy.x = 2 * left - boy.x
+                boy.face_dir = 1
+        if boy.x == left:
+            boy.face_dir = 1
+        elif boy.x == right:
+            boy.face_dir = -1
+        if boy.auto_elapsed >= AUTO_DURATION:
+            boy.change_state(Idle)
+
+
 class Boy:
     def __init__(self):
         self.x = get_canvas_width() / 2
@@ -46,6 +80,10 @@ class Boy:
 
     def handle_event(self, event):
         if event.type not in (SDL_KEYDOWN, SDL_KEYUP):
+            return
+        if event.type == SDL_KEYDOWN and event.key == SDLK_a:
+            if self.state is Idle:
+                self.change_state(AutoRun)
             return
         if event.key not in (SDLK_LEFT, SDLK_RIGHT):
             return
@@ -69,7 +107,7 @@ class Boy:
         self.state.update(self, dt)
 
     def draw(self):
-        size = NORMAL_SIZE
+        size = AUTO_SIZE if self.state is AutoRun else NORMAL_SIZE
         row = 300 if self.face_dir == 1 else 200
         if self.state is not Idle:
             row -= 200
