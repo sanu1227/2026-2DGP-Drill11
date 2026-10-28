@@ -1,6 +1,7 @@
+from math import pi
 from pathlib import Path
 
-from pico2d import (SDL_KEYDOWN, SDL_KEYUP, SDLK_LEFT, SDLK_RIGHT, SDLK_a,
+from pico2d import (SDL_KEYDOWN, SDL_KEYUP, SDLK_LEFT, SDLK_RIGHT, SDLK_SPACE, SDLK_a,
                     get_canvas_width, load_image)
 
 RUN_SPEED = 200.0
@@ -8,10 +9,23 @@ NORMAL_SIZE = 100
 AUTO_SPEED = RUN_SPEED * 2
 AUTO_SIZE = NORMAL_SIZE * 2
 AUTO_DURATION = 5.0
+SLEEP_DELAY = 5.0
 ANIMATION_FPS = 10.0
 
 
 class Idle:
+    @staticmethod
+    def enter(boy):
+        boy.idle_elapsed = 0.0
+
+    @staticmethod
+    def update(boy, dt):
+        boy.idle_elapsed += dt
+        if boy.idle_elapsed >= SLEEP_DELAY:
+            boy.change_state(Sleep)
+
+
+class Sleep:
     @staticmethod
     def enter(boy):
         pass
@@ -81,6 +95,9 @@ class Boy:
     def handle_event(self, event):
         if event.type not in (SDL_KEYDOWN, SDL_KEYUP):
             return
+        if event.type == SDL_KEYDOWN and event.key == SDLK_SPACE and self.state is Sleep:
+            self.change_state(Idle)
+            return
         if event.type == SDL_KEYDOWN and event.key == SDLK_a:
             if self.state is Idle:
                 self.change_state(AutoRun)
@@ -103,13 +120,20 @@ class Boy:
                     self.change_state(Idle)
 
     def update(self, dt):
-        self.frame = (self.frame + ANIMATION_FPS * dt) % 8
+        if self.state is not Sleep:
+            self.frame = (self.frame + ANIMATION_FPS * dt) % 8
         self.state.update(self, dt)
 
     def draw(self):
         size = AUTO_SIZE if self.state is AutoRun else NORMAL_SIZE
         row = 300 if self.face_dir == 1 else 200
+        if self.state is Sleep:
+            self.image.clip_composite_draw(int(self.frame) * 100, row, 100, 100,
+                                           self.face_dir * pi / 2, '', self.x, 70,
+                                           NORMAL_SIZE, NORMAL_SIZE)
+            return
         if self.state is not Idle:
             row -= 200
+        # The sprite's feet sit about 13 pixels above the 100-pixel cell bottom.
         self.image.clip_draw(int(self.frame) * 100, row, 100, 100,
-                             self.x, 40 + size / 2, size, size)
+                             self.x, 53 + size * 0.37, size, size)
